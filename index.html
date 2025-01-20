@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RSSB</title>
+    <style>
+      body {
+        background-color: #fbf9cd;
+      }
+      .hidden {
+        display: none;
+      }
+      .form-container {
+        margin-top: 20px;
+        padding: 10px;
+        border: 1px solid #ccc;
+      }
+      .table-container {
+        margin-top: 20px;
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .left-section {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+      .right-section {
+        display: flex;
+        gap: 10px;
+      }
+      .button {
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .add-form-btn {
+        background-color: #007bff;
+        color: white;
+      }
+      .download-excel-btn {
+        background-color: #28a745;
+        color: white;
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
+  </head>
+  <body>
+    <h1>Report of Van/Bus/Trolla Trips</h1>
+
+    <div class="header">
+      <div class="left-section">
+        <div>
+          <label for="date">Date: </label>
+          <input type="date" id="date" name="date" required />
+        </div>
+        <div>
+          <label for="time">Time: </label>
+          <input
+            type="text"
+            id="time"
+            name="time"
+            placeholder="hh:mm AM/PM"
+            required
+          />
+        </div>
+      </div>
+      <div class="right-section">
+        <button id="addBtn" class="button add-form-btn">Add Form</button>
+        <button id="downloadBtn" class="button download-excel-btn">
+          Download Excel
+        </button>
+      </div>
+    </div>
+
+    <div id="formContainer" class="mt-4"></div>
+
+    <script>
+      let formCount = 0;
+
+      document.getElementById("addBtn").addEventListener("click", function () {
+        const dateInput = document.getElementById("date").value;
+        const timeInput = document.getElementById("time").value;
+
+        if (dateInput && timeInput) {
+          formCount++;
+
+          const newForm = document.createElement("div");
+          newForm.classList.add("form-container");
+          newForm.innerHTML = `
+            <h3>From: <input type="text" placeholder="Enter From" required>
+              <button class="deleteFormBtn p-2 bg-red-500 text-white rounded ml-2">Delete Form</button>
+            </h3>
+            <div class="table-container">
+              <table border="1" class="table-auto w-full">
+                <thead>
+                  <tr>
+                    <th>To</th>
+                    <th>Van - Trip</th>
+                    <th>Van - Sangat</th>
+                    <th>Bus - Trip</th>
+                    <th>Bus - Sangat</th>
+                    <th>Trola - Trip</th>
+                    <th>Trola - Sangat</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+              <div class="action-buttons">
+                <button class="addRowBtn p-2 bg-green-500 text-white rounded">Add Row</button>
+                <button class="deleteRowBtn p-2 bg-red-500 text-white rounded">Delete Row</button>
+              </div>
+            </div>
+          `;
+
+          document.getElementById("formContainer").appendChild(newForm);
+
+          newForm.querySelector(".deleteFormBtn").addEventListener("click", () => {
+            newForm.remove();
+          });
+
+          const tbody = newForm.querySelector("tbody");
+          const addRowBtn = newForm.querySelector(".addRowBtn");
+          const deleteRowBtn = newForm.querySelector(".deleteRowBtn");
+
+          addRowBtn.addEventListener("click", () => {
+            const newRow = document.createElement("tr");
+            newRow.innerHTML = `
+              <td><input type="text" placeholder="Enter To" class="w-full"></td>
+              <td><input type="text" placeholder="Enter Van Trip" class="w-full"></td>
+              <td><input type="text" placeholder="Enter Van Sangat" class="w-full"></td>
+              <td><input type="text" placeholder="Enter Bus Trip" class="w-full"></td>
+              <td><input type="text" placeholder="Enter Bus Sangat" class="w-full"></td>
+              <td><input type="text" placeholder="Enter Trola Trip" class="w-full"></td>
+              <td><input type="text" placeholder="Enter Trola Sangat" class="w-full"></td>
+            `;
+            tbody.appendChild(newRow);
+          });
+
+          deleteRowBtn.addEventListener("click", () => {
+            const rows = tbody.querySelectorAll("tr");
+            if (rows.length > 0) rows[rows.length - 1].remove();
+          });
+        } else {
+          alert("Please fill out both date and time fields");
+        }
+      });
+
+      document.getElementById("downloadBtn").addEventListener("click", async function () {
+        try {
+          const workbook = new ExcelJS.Workbook();
+          const sheet = workbook.addWorksheet("Trip Report");
+
+          sheet.addRow([
+            "From",
+            "To",
+            "Van - Trip",
+            "Van - Sangat",
+            "Bus - Trip",
+            "Bus - Sangat",
+            "Trola - Trip",
+            "Trola - Sangat",
+          ]);
+
+          const forms = document.querySelectorAll(".form-container");
+          forms.forEach((form) => {
+            const fromInput = form.querySelector("h3 input").value || "N/A";
+            const rows = form.querySelectorAll("tbody tr");
+
+            rows.forEach((row) => {
+              const rowData = [fromInput];
+              row.querySelectorAll("td input").forEach((cell) => {
+                rowData.push(cell.value || "N/A");
+              });
+              sheet.addRow(rowData);
+            });
+          });
+
+          const buffer = await workbook.xlsx.writeBuffer();
+          const blob = new Blob([buffer], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          });
+          const url = URL.createObjectURL(blob);
+
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "Trip_Report.xlsx";
+          a.click();
+
+          URL.revokeObjectURL(url);
+        } catch (error) {
+          console.error("Error:", error);
+          alert("Failed to generate Excel file.");
+        }
+      });
+    </script>
+  </body>
+</html>
