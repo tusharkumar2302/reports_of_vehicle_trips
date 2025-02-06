@@ -217,7 +217,7 @@
     <script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
   </head>
   <body>
-    <h1>Report of Van/Bus/Trolla Trips</h1>
+    <h1>Detail of Van/Bus/Trolla Trips</h1>
 
     <div class="header">
       <div class="left-section">
@@ -324,7 +324,7 @@
         .addEventListener("click", async function () {
           try {
             const workbook = new ExcelJS.Workbook();
-            const sheet = workbook.addWorksheet("Trip Report");
+            const sheet = workbook.addWorksheet("Trip Detail");
 
             let dateInput = document.getElementById("date").value || "N/A";
             // const timeInput = document.getElementById("time").value || "N/A";
@@ -526,7 +526,7 @@
             });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.download = "trip_report.xlsx";
+            link.download = "trip_detail.xlsx";
             link.click();
           } catch (error) {
             console.error("Error downloading Excel file:", error);

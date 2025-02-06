@@ -1,5 +1,5 @@
 {
-  "name": "reports-of-vehicle-trips",
+  "name": "detail-of-vehicle-trips",
   "version": "1.0.0",
   "main": "main.js",
   "scripts": {
@@ -7,7 +7,7 @@
     "start": "electron .",
     "build": "electron-builder --win"
   },
-  "keywords": ["RSSB", "reports-of-vehicle-trips"],
+  "keywords": ["RSSB", "detail-of-vehicle-trips"],
   "author": "RSSB",
   "license": "ISC",
   "description": "This app is created for RSSB organization. It is for personal use only and is a sewa, not for commercial purposes.",
@@ -20,7 +20,7 @@
   },
   "build": {
     "appId": "com.yourapp.id",
-    "productName": "ReportsOfVehicleTrips",
+    "productName": "DetailOfVehicleTrips",
     "win": {
       "icon": "assets/icon.ico",
       "sign": false
