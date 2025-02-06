@@ -99,7 +99,9 @@
         padding: 8px;
         border-radius: 5px;
         border: 1px solid #ccc;
-        width: calc(100% - 30px); /* Makes input field full width minus button space */
+        width: calc(
+          100% - 30px
+        ); /* Makes input field full width minus button space */
       }
 
       .table-container {
@@ -113,11 +115,14 @@
         margin-top: 10px;
       }
 
-      table, th, td {
+      table,
+      th,
+      td {
         border: 1px solid #ddd;
       }
 
-      th, td {
+      th,
+      td {
         padding: 10px;
         text-align: left;
       }
@@ -220,7 +225,7 @@
           <label for="date">Date: </label>
           <input type="date" id="date" name="date" required />
         </div>
-        <div>
+        <!-- <div>
           <label for="time">Time: </label>
           <input
             type="text"
@@ -229,7 +234,7 @@
             placeholder="HH:MM"
             required
           />
-        </div>
+        </div> -->
       </div>
       <div class="right-section">
         <button id="addBtn" class="button add-form-btn">Add Section</button>
@@ -246,41 +251,38 @@
 
       document.getElementById("addBtn").addEventListener("click", function () {
         const dateInput = document.getElementById("date").value;
-        const timeInput = document.getElementById("time").value;
 
-        
-
-        if (dateInput && timeInput) {
+        if (dateInput) {
           formCount++;
 
           const newForm = document.createElement("div");
           newForm.classList.add("form-container");
           newForm.innerHTML = `
-            <h3>
-              From: <input type="text" placeholder="Enter From" required>
-              <button class="deleteFormBtn p-2 bg-red-500 text-white rounded ml-2">Delete Section</button>
-            </h3>
-            <div class="table-container">
-              <table border="1" class="table-auto w-full">
-                <thead>
-                  <tr>
-                    <th>To</th>
-                    <th>Van - Trip</th>
-                    <th>Van - Sangat</th>
-                    <th>Bus - Trip</th>
-                    <th>Bus - Sangat</th>
-                    <th>Trola - Trip</th>
-                    <th>Trola - Sangat</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-              <div class="action-buttons">
-                <button class="addRowBtn p-2 bg-green-500 text-white rounded">Add Row</button>
-                <button class="deleteRowBtn p-2 bg-red-500 text-white rounded">Delete Row</button>
-              </div>
-            </div>
-          `;
+      <h3>
+        From: <input type="text" placeholder="Enter From" required>
+        <button class="deleteFormBtn">Delete Section</button>
+      </h3>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>To</th>
+              <th>Van - Trip</th>
+              <th>Van - Sangat</th>
+              <th>Bus - Trip</th>
+              <th>Bus - Sangat</th>
+              <th>Trola - Trip</th>
+              <th>Trola - Sangat</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <div class="action-buttons">
+          <button class="addRowBtn">Add Row</button>
+          <button class="deleteRowBtn">Delete Row</button>
+        </div>
+      </div>
+    `;
 
           document.getElementById("formContainer").appendChild(newForm);
 
@@ -297,14 +299,14 @@
           addRowBtn.addEventListener("click", () => {
             const newRow = document.createElement("tr");
             newRow.innerHTML = `
-              <td><input type="text" placeholder="Enter To" class="w-full"></td>
-              <td><input type="text" placeholder="Enter Van Trip" class="w-full"></td>
-              <td><input type="text" placeholder="Enter Van Sangat" class="w-full"></td>
-              <td><input type="text" placeholder="Enter Bus Trip" class="w-full"></td>
-              <td><input type="text" placeholder="Enter Bus Sangat" class="w-full"></td>
-              <td><input type="text" placeholder="Enter Trola Trip" class="w-full"></td>
-              <td><input type="text" placeholder="Enter Trola Sangat" class="w-full"></td>
-            `;
+        <td><input type="text" placeholder="Enter To"></td>
+        <td><input type="text" placeholder="Enter Van Trip"></td>
+        <td><input type="text" placeholder="Enter Van Sangat"></td>
+        <td><input type="text" placeholder="Enter Bus Trip"></td>
+        <td><input type="text" placeholder="Enter Bus Sangat"></td>
+        <td><input type="text" placeholder="Enter Trola Trip"></td>
+        <td><input type="text" placeholder="Enter Trola Sangat"></td>
+      `;
             tbody.appendChild(newRow);
           });
 
@@ -313,7 +315,7 @@
             if (rows.length > 0) rows[rows.length - 1].remove();
           });
         } else {
-          alert("Please fill out both date and time fields");
+          alert("Please select a date.");
         }
       });
 
@@ -324,21 +326,28 @@
             const workbook = new ExcelJS.Workbook();
             const sheet = workbook.addWorksheet("Trip Report");
 
+            let dateInput = document.getElementById("date").value || "N/A";
+            // const timeInput = document.getElementById("time").value || "N/A";
+
+            if (dateInput !== "N/A") {
+              let parts = dateInput.split("-");
+              dateInput = `${parts[2]}-${parts[1]}-${parts[0]}`;
+            }
+
             // Add title
-            sheet.addRow(["Report of Van/Bus/Trolla Trips"]).font = {
+            sheet.addRow([
+              `Detail of Van/Bus/Trolla Trips Dt.${dateInput}`,
+            ]).font = {
               bold: true,
               size: 24,
             };
-            sheet.addRow([]);
+            // sheet.addRow([]);
 
-            const dateInput = document.getElementById("date").value || "N/A";
-            const timeInput = document.getElementById("time").value || "N/A";
-
-            sheet.addRow([`Date: ${dateInput}                               Time: ${timeInput}`]).font = {
-              bold: true,
-              size: 16,
-            };
-            sheet.addRow([]);
+            // sheet.addRow([`Date: ${dateInput}                               Time: ${timeInput}`]).font = {
+            //   bold: true,
+            //   size: 16,
+            // };
+            // sheet.addRow([]);
 
             let totalVanTrip = 0,
               totalVanSangat = 0,
@@ -359,12 +368,12 @@
               // Add headers
               sheet.addRow([
                 "To",
-                "Van Trip",
-                "Van Sangat",
-                "Bus Trip",
-                "Bus Sangat",
-                "Trola Trip",
-                "Trola Sangat",
+                "Van",
+                "Sangat",
+                "Bus",
+                "Sangat",
+                "Trola",
+                "Sangat",
                 "Total",
               ]).font = { bold: true, size: 12 };
 
@@ -455,13 +464,24 @@
             sheet.addRow([]); // Blank line
 
             // Add summary
-            sheet.addRow([
-              "VAN + BUS (SANGAT)",
-              totalVanSangat + totalBusSangat,
-            ]).font = {
+
+            sheet.addRow(["VAN SANGAT", totalVanSangat]).font = {
               bold: true,
               size: 20,
             };
+
+            sheet.addRow(["BUS SANGAT", totalBusSangat]).font = {
+              bold: true,
+              size: 20,
+            };
+
+            sheet.addRow(["TOTAL", totalVanSangat + totalBusSangat]).font = {
+              bold: true,
+              size: 20,
+            };
+
+            sheet.addRow([]); // Blank line
+
             sheet.addRow(["TROLA (SANGAT)", totalTrolaSangat]).font = {
               bold: true,
               size: 20,
@@ -474,17 +494,17 @@
               size: 20,
             };
 
-            // Adjust column widths automatically
-            sheet.columns.forEach((column) => {
-              let maxLength = 0;
-              column.eachCell({ includeEmpty: true }, (cell) => {
-                const length = cell.value ? cell.value.toString().length : 0;
-                if (length > maxLength) {
-                  maxLength = length;
-                }
-              });
-              column.width = maxLength + 2; // Add padding for better visibility
-            });
+            // // Adjust column widths automatically
+            // sheet.columns.forEach((column) => {
+            //   let maxLength = 0;
+            //   column.eachCell({ includeEmpty: true }, (cell) => {
+            //     const length = cell.value ? cell.value.toString().length : 0;
+            //     if (length > maxLength) {
+            //       maxLength = length;
+            //     }
+            //   });
+            //   column.width = maxLength + 2; // Add padding for better visibility
+            // });
 
             // Apply borders to all rows
             sheet.eachRow((row) => {
@@ -498,11 +518,10 @@
               });
             });
 
-            
-
             // Write to file
             const buffer = await workbook.xlsx.writeBuffer();
             const blob = new Blob([buffer], {
+              // type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
               type: "application/octet-stream",
             });
             const link = document.createElement("a");
